@@ -1,9 +1,9 @@
 import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:tflite/tflite.dart';
+import 'package:tflite_image_classifier/classifier.dart';
 import 'package:tflite_image_classifier/helpers/tflite_utils.dart';
 import 'package:tflite_image_classifier/widgets/ImageDialog.dart';
 
@@ -19,50 +19,48 @@ class _MyImagePickerState extends State<MyImagePicker> {
   String result;
   String path;
   final picker = ImagePicker();
+  Classifier classifier = Classifier(
+      modelName: "portrait_segmentation", labelsFileName: "labels.txt");
 
   @override
   void initState() {
-    loadModel(ModelType.portrait_segmentation);
     super.initState();
+    classifier.loadModel();
+    //loadModel(ModelType.portrait_segmentation);
   }
 
-  void loadModel(ModelType modelType) async {
-    switch (modelType) {
-      case ModelType.model_unquant:
-        await Tflite.loadModel(
-          model: "assets/model_unquant.tflite",
-          labels: "assets/labels.txt",
-        );
-        print(':::::::::::::::::::::::::::model_unquant:::');
-        break;
-      case ModelType.portrait_segmentation:
-        await Tflite.loadModel(model: "assets/portrait_segmentation.tflite");
-        print(':::::::::::::::::::::::::::Portrait_segmentation:::');
-        break;
-      case ModelType.slimNet:
-        await Tflite.loadModel(model: "assets/slim_reshape.tflite");
-        print(':::::::::::::::::::::::::::Slim_reshape.tflite:::');
+  // void loadModel(ModelType modelType) async {
+  //   switch (modelType) {
+  //     case ModelType.model_unquant:
+  //       await Tflite.loadModel(
+  //         model: "assets/model_unquant.tflite",
+  //         labels: "assets/labels.txt",
+  //       );
+  //       print(':::::::::::::::::::::::::::model_unquant:::');
+  //       break;
+  //     case ModelType.portrait_segmentation:
+  //       await Tflite.loadModel(model: "assets/portrait_segmentation.tflite");
+  //       print(':::::::::::::::::::::::::::Portrait_segmentation:::');
+  //       break;
+  //     case ModelType.slimNet:
+  //       await Tflite.loadModel(model: "assets/slim_reshape.tflite");
+  //       print(':::::::::::::::::::::::::::Slim_reshape.tflite:::');
 
-        break;
-      default:
-        break;
-    }
-  }
+  //       break;
+  //     default:
+  //       break;
+  //   }
+  // }
 
   Future recognizeImage(File image) async {
-    int startTime = new DateTime.now().millisecondsSinceEpoch;
-    // var recognitions = await Tflite.runModelOnImage(
-    //   path: image.path,
-    //   numResults: 6,
-    //   threshold: 0.05,
-    //   imageMean: 127.5,
-    //   imageStd: 127.5,
-    // );
+    // int startTime = new DateTime.now().millisecondsSinceEpoch;
 
-    var recognitions = await Tflite.runSegmentationOnImage(path: image.path);
+    // var recognitions = await Tflite.runSegmentationOnImage(path: image.path);
 
-    int endTime = new DateTime.now().millisecondsSinceEpoch;
-    print("Inference took ----> ${endTime - startTime}ms");
+    // int endTime = new DateTime.now().millisecondsSinceEpoch;
+    // print("Inference took ----> ${endTime - startTime}ms");
+
+    var recognitions = await classifier.predictSegmentation(image.path);
     await showDialog(
         context: context, builder: (_) => ImageDialog(recognitions));
   }
@@ -101,10 +99,6 @@ class _MyImagePickerState extends State<MyImagePicker> {
     // });
   }
 
-  void setImage(bool from) {
-    return null;
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -126,16 +120,16 @@ class _MyImagePickerState extends State<MyImagePicker> {
                 padding: EdgeInsets.fromLTRB(12, 12, 12, 12),
               ),
             ),
-            // Container(
-            //   margin: EdgeInsets.fromLTRB(0, 0, 0, 0),
-            //   child: RaisedButton(
-            //     onPressed: () => getImageFromGallery(),
-            //     child: Text('Get Image from Gallery'),
-            //     textColor: Colors.white,
-            //     color: Colors.blue,
-            //     padding: EdgeInsets.fromLTRB(12, 12, 12, 12),
-            //   ),
-            // ),
+            Container(
+              margin: EdgeInsets.fromLTRB(0, 0, 0, 0),
+              child: RaisedButton(
+                onPressed: () => getImageFromGallery(),
+                child: Text('Get Image from Gallery'),
+                textColor: Colors.white,
+                color: Colors.blue,
+                padding: EdgeInsets.fromLTRB(12, 12, 12, 12),
+              ),
+            ),
             Container(
               margin: EdgeInsets.fromLTRB(0, 30, 0, 20),
               child: RaisedButton(
