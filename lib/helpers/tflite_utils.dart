@@ -2,6 +2,8 @@ import 'dart:typed_data';
 
 import 'package:image/image.dart' as img;
 
+enum ModelType { model_unquant, portrait_segmentation, slimNet }
+
 Uint8List imageToByteListFloat32(
     img.Image image, int inputSize, double mean, double std) {
   var convertedBytes = Float32List(1 * inputSize * inputSize * 3);

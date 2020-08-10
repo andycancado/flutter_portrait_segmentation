@@ -1,11 +1,9 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:tflite/tflite.dart';
-import 'package:image/image.dart' as img;
 import 'package:tflite_image_classifier/helpers/tflite_utils.dart';
 import 'package:tflite_image_classifier/widgets/ImageDialog.dart';
 
@@ -20,27 +18,30 @@ class _MyImagePickerState extends State<MyImagePicker> {
   File imageURI;
   String result;
   String path;
-  //List _recognitions;
-  Image img;
   final picker = ImagePicker();
 
   @override
   void initState() {
-    LoadModel('portait_Segmentation');
+    loadModel(ModelType.portrait_segmentation);
+    super.initState();
   }
 
-  void LoadModel(String modelType) async {
+  void loadModel(ModelType modelType) async {
     switch (modelType) {
-      case 'model_unquant':
+      case ModelType.model_unquant:
         await Tflite.loadModel(
           model: "assets/model_unquant.tflite",
           labels: "assets/labels.txt",
         );
         print(':::::::::::::::::::::::::::model_unquant:::');
         break;
-      case 'portait_Segmentation':
+      case ModelType.portrait_segmentation:
         await Tflite.loadModel(model: "assets/portrait_segmentation.tflite");
         print(':::::::::::::::::::::::::::Portrait_segmentation:::');
+        break;
+      case ModelType.slimNet:
+        await Tflite.loadModel(model: "assets/slim_reshape.tflite");
+        print(':::::::::::::::::::::::::::Slim_reshape.tflite:::');
 
         break;
       default:
@@ -57,11 +58,9 @@ class _MyImagePickerState extends State<MyImagePicker> {
     //   imageMean: 127.5,
     //   imageStd: 127.5,
     // );
+
     var recognitions = await Tflite.runSegmentationOnImage(path: image.path);
 
-    // setState(() {
-    //   _recognitions = recognitions;
-    // });
     int endTime = new DateTime.now().millisecondsSinceEpoch;
     print("Inference took ----> ${endTime - startTime}ms");
     await showDialog(
@@ -69,7 +68,8 @@ class _MyImagePickerState extends State<MyImagePicker> {
   }
 
   Future getImgFromCamera() async {
-    var img = await picker.getImage(source: ImageSource.camera);
+    var img = await picker.getImage(
+        source: ImageSource.camera, maxHeight: 224, maxWidth: 224);
 
     setState(() {
       imageURI = File(img.path);
@@ -115,7 +115,7 @@ class _MyImagePickerState extends State<MyImagePicker> {
             imageURI == null
                 ? Text('No Image Selected')
                 : Image.file(imageURI,
-                    width: 300, height: 200, fit: BoxFit.cover),
+                    width: 224, height: 224, fit: BoxFit.cover),
             Container(
               margin: EdgeInsets.fromLTRB(0, 30, 0, 20),
               child: RaisedButton(
