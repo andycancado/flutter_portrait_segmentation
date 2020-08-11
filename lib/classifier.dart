@@ -11,10 +11,12 @@ class Classifier {
 
   Future<void> loadModel() async {
     labelsFileName ??= "";
-    await Tflite.loadModel(
+
+    var res = await Tflite.loadModel(
       model: "assets/$modelName.tflite",
       labels: labelsFileName.isEmpty ? "" : "assets/$labelsFileName",
     );
+    print("::::::::::::::::::: $res");
   }
 
   Future<Uint8List> predictSegmentation(String imagePath) async {
