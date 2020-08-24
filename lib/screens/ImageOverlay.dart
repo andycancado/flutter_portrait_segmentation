@@ -68,7 +68,7 @@ class _ImageAppState extends State<ImageOverlay> {
                           width: screenW,
                           height: screenH,
                           gaplessPlayback: true,
-                          fit: BoxFit.fill,
+                          fit: BoxFit.cover,
                         ),
                       ),
                     ),
@@ -134,7 +134,7 @@ class _ImageAppState extends State<ImageOverlay> {
       width: 150,
       height: 150,
       gaplessPlayback: true,
-      fit: BoxFit.fill,
+      fit: BoxFit.cover,
     );
   }
 }
