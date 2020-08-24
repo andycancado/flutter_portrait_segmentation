@@ -13,6 +13,7 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'Flutter tflite',
       theme: ThemeData(
+        scaffoldBackgroundColor: Colors.blueGrey[300],
         primarySwatch: Colors.blue,
         visualDensity: VisualDensity.adaptivePlatformDensity,
         backgroundColor: Colors.transparent,
